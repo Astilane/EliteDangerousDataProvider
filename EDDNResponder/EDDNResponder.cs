@@ -37,7 +37,7 @@ namespace EDDNResponder
 
         public string ResponderDescription()
         {
-            return "Send station, jump, and scan information to EDDN.  EDDN is a third-party tool that gathers information on systems and markets, and provides data for most trading tools as well as starsystem information tools such as EDDB";
+            return "Envoyer les informations de station, de saut et de scan à EDDN. EDDN est un outil tiers qui regroupe des informations sur les systèmes et les marchés et fournit des données pour la plupart des outils de commerce ainsi que des outils d'information sur les sytèmes stellaires tels que EDDB";
         }
 
         public EDDNResponder()
@@ -289,7 +289,7 @@ namespace EDDNResponder
         private static void sendMessage(EDDNBody body)
         {
             Logging.Debug(JsonConvert.SerializeObject(body));
-            var client = new RestClient("https://eddn.edcd.io:4430/");
+            var client = new RestClient("https://eddn.edcd.io:4430");
             var request = new RestRequest("upload/", Method.POST);
             request.AddParameter("application/json", JsonConvert.SerializeObject(body), ParameterType.RequestBody);
 
