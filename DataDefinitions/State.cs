@@ -26,19 +26,19 @@ namespace EddiDataDefinitions
             STATES.Add(this);
         }
 
-        public static readonly State None = new State("None", "None");
-        public static readonly State Retreat = new State("Retreat", "Retreat");
-        public static readonly State War = new State("War", "War");
-        public static readonly State Lockdown = new State("Lockdown", "Lockdown");
-        public static readonly State CivilUnrest = new State("CivilUnrest", "Civil Unrest");
-        public static readonly State CivilWar = new State("CivilWar", "Civil War");
-        public static readonly State Boom = new State("Boom", "Boom");
-        public static readonly State Expansion = new State("Expansion", "Expansion");
-        public static readonly State Bust = new State("Bust", "Bust");
-        public static readonly State Outbreak = new State("Outbreak", "Outbreak");
+        public static readonly State None = new State("None", "Aucun");
+        public static readonly State Retreat = new State("Retreat", "Retraite");
+        public static readonly State War = new State("War", "Guerre");
+        public static readonly State Lockdown = new State("Lockdown", "loi martiale");
+        public static readonly State CivilUnrest = new State("CivilUnrest", "Émeutes");
+        public static readonly State CivilWar = new State("CivilWar", "Guerre Civile");
+        public static readonly State Boom = new State("Boom", "Essor économique");
+        public static readonly State Expansion = new State("Expansion", "Politique expensionniste");
+        public static readonly State Bust = new State("Bust", "Faillite");
+        public static readonly State Outbreak = new State("Outbreak", "Épidémie");
         public static readonly State Famine = new State("Famine", "Famine");
-        public static readonly State Election = new State("Election", "Election");
-        public static readonly State Investment = new State("Investment", "Investment");
+        public static readonly State Election = new State("Election", "Élections");
+        public static readonly State Investment = new State("Investment", "Investissements");
 
         public static State FromName(string from)
         {
