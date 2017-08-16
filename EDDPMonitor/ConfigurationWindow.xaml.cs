@@ -42,7 +42,7 @@ namespace EddiEddpMonitor
 
             // Make a list of states plus a (anything) state that maps to NULL
             StatesPlusNone = new List<KeyValuePair<string, string>>();
-            StatesPlusNone.Add(new KeyValuePair<string, string>("(anything)", null));
+            StatesPlusNone.Add(new KeyValuePair<string, string>("(Tout)", null));
             StatesPlusNone.AddRange(State.STATES.Select(x => new KeyValuePair<string, string>(x.name, x.name)));
 
             configurationFromFile();
