@@ -42,7 +42,7 @@ namespace EddiMaterialMonitor
 
         public string MonitorDescription()
         {
-            return "Track the amount of materials and generate events when limits are reached.";
+            return "Suit la quantité de matériaux et génère des événements lorsque des limites choisies sont atteintes.";
         }
 
         public bool IsRequired()
