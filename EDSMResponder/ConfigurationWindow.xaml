@@ -1,46 +1,33 @@
-﻿<UserControl x:Class="EddiEddpMonitor.ConfigurationWindow"
+﻿<UserControl x:Class="EddiEdsmResponder.ConfigurationWindow"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:System="clr-namespace:System;assembly=mscorlib"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:j="clr-namespace:EddiDataDefinitions;assembly=EddiDataDefinitions"
-             xmlns:local="clr-namespace:EddiEddpMonitor"
+             xmlns:local="clr-namespace:EddiEdsmResponder"
              mc:Ignorable="d" 
              d:DesignHeight="600" d:DesignWidth="800">
-    <DockPanel LastChildFill="True" Background="#FFE5E5E5" Margin="0,5">
-        <TextBlock DockPanel.Dock="Top" TextWrapping="Wrap" Margin="10"  Text="Vous pouvez créer, éditer et supprimer des surveillances ci-dessous. Lorsque EDDI reçoit des informations sur un changement quelque part dans la galaxie, il se comparera à chacune des surveillances à son tour. Si l'information correspond à tous les critères sélectionnés pour une surveillance donnée, elle déclenchera un événement. Sachez que cela repose sur les informations provenant de EDDN, qui proviennent à la fois de commandants qui exécutent des programmes tels que EDDI, de même ne seront signalés que les changements dont le réseau est au courant." VerticalAlignment="Top"/>
-        <UniformGrid DockPanel.Dock="Bottom" Rows="1" Margin="0,5">
-            <Button Margin="10" HorizontalAlignment="Center" Click="eddpAddWatch">Create new watch</Button>
-        </UniformGrid>
-        <DataGrid AutoGenerateColumns="False" x:Name="watchData" CanUserAddRows="false" TargetUpdated="eddpWatchesUpdated"  ItemsSource="{Binding Watches}">
-            <DataGrid.Columns>
-                <DataGridTextColumn Header="Nom" Binding="{Binding Path=Name, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, TargetNullValue={x:Static System:String.Empty}}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Système" Width="*" Binding="{Binding Path=System, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, TargetNullValue={x:Static System:String.Empty}}"></DataGridTextColumn>
-                <DataGridTextColumn Header="Faction" Width="*" Binding="{Binding Path=Faction, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, TargetNullValue={x:Static System:String.Empty}}"></DataGridTextColumn>
-                <DataGridComboBoxColumn Header="État" SelectedValueBinding="{Binding Path=State, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" DisplayMemberPath="Key" SelectedValuePath="Value">
-                    <DataGridComboBoxColumn.ElementStyle>
-                        <Style TargetType="{x:Type ComboBox}">
-                            <Setter Property="ItemsSource" Value="{Binding Path=DataContext.StatesPlusNone, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
-                        </Style>
-                    </DataGridComboBoxColumn.ElementStyle>
-                    <DataGridComboBoxColumn.EditingElementStyle>
-                        <Style TargetType="{x:Type ComboBox}">
-                            <EventSetter Event="SelectionChanged" Handler="eddpStateChanged" />
-                            <Setter Property="ItemsSource" Value="{Binding Path=DataContext.StatesPlusNone, RelativeSource={RelativeSource AncestorType={x:Type UserControl}}}" />
-                        </Style>
-                    </DataGridComboBoxColumn.EditingElementStyle>
-                </DataGridComboBoxColumn>
-                <local:DataGridNumericColumn Header="Distance Max du vaisseau" Width="*" Binding="{Binding Path=MaxDistanceFromShip, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, TargetNullValue={x:Static System:String.Empty}}"></local:DataGridNumericColumn>
-                <local:DataGridNumericColumn Header="Distance Max du foyer" Width="*" Binding="{Binding Path=MaxDistanceFromHome, NotifyOnTargetUpdated=True, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay, TargetNullValue={x:Static System:String.Empty}}"></local:DataGridNumericColumn>
-                <DataGridTemplateColumn>
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Button Click="eddpDeleteWatch">Delete</Button>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-            </DataGrid.Columns>
-        </DataGrid>
+    <DockPanel LastChildFill="True" Background="#FFE5E5E5">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+                <RowDefinition Height="Auto" />
+            </Grid.RowDefinitions>
+            <TextBlock Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" Text="Pour vous connecter à EDSM, vous devez avoir enregistré un compte sur leur site. Une fois que vous avez fait cela, vous pouvez obtenir votre clé API en cliquant sur votre portrait dans le coin supérieur droit de l'écran et en sélectionnant 'Ma clé API'" VerticalAlignment="Top"/>
+            <Label Grid.Row="1" Grid.Column="0" Margin="10" Content="Clef API de EDSM"/>
+            <TextBox x:Name="edsmApiKeyTextBox" Grid.Row="1" Grid.Column="1" Margin="10" TextChanged="edsmApiKeyChanged"/>
+            <TextBlock Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" Text="Si vous avez enregistré un nom de commandant différent de celui que vous utilisez en jeu ou si vous n'avez pas activé l'application complémentaire, veuillez entrer le nom de votre commandant ci-dessous" VerticalAlignment="Top"/>
+            <Label Grid.Row="3" Grid.Column="0" Margin="10" Content="Nom de Commandant enregistré dans EDSM"/>
+            <TextBox x:Name="edsmCommanderNameTextBox" Grid.Row="3" Grid.Column="1" Margin="10" TextChanged="edsmCommanderNameChanged"/>
+            <TextBlock Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" TextWrapping="Wrap" Margin="10" Text="Une fois que vous avez entré vos données ci-dessus, vous pouvez extraire vos journaux existants d'EDSM afin que EDDI sache combien de fois vous avez été dans chaque système. Vous devez le faire seulement la première fois que vous avez configuré EDSM. Notez que cela peut prendre un certain temps pour fonctionner" VerticalAlignment="Top"/>
+            <Button x:Name="edsmFetchLogsButton" Grid.Row="5" Grid.Column="0" Grid.ColumnSpan="2" Content="Obtenir les Logs EDSM" Margin="10" Click="edsmObtainLogClicked"/>
+        </Grid>
     </DockPanel>
 </UserControl>
