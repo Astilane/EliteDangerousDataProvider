@@ -273,5 +273,10 @@ namespace EddiSpeechResponder
             configuration.ToFile();
             EDDI.Instance.Reload("Speech responder");
         }
+
+        private void scriptsData_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+
+        }
     }
 }

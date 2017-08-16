@@ -41,7 +41,7 @@ namespace EddiSpeechResponder
 
         public string ResponderDescription()
         {
-            return "Respond to events with pre-scripted responses using the information available.  Not all events have scripted responses by default; those that do not have the 'Test' button disabled.  The default personality can be copied, which allows existing scripts to be modified or disabled, and new scripts to be written, to suit your preferences.";
+            return "Réponds aux événements avec des réponses pré-scriptées en utilisant les informations disponibles. Tous les évènements n'ont pas été scriptés; Ceux qui n'ont pas le bouton 'Test' d'activé sont à créer. La personnalité par défaut peut être copiée, ce qui permet de modifier ou de désactiver les scripts existants, et les nouveaux scripts à écrire, en fonction de vos préférences.";
         }
 
         public SpeechResponder()
