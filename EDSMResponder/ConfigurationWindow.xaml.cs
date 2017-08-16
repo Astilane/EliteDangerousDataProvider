@@ -1,140 +1,106 @@
 ﻿using Eddi;
 using EddiDataDefinitions;
-using EddiDataProviderService;
-using EddiStarMapService;
 using Newtonsoft.Json;
-using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
+using System.ComponentModel;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Utilities;
 
-namespace EddiEdsmResponder
+namespace EddiEddpMonitor
 {
     /// <summary>
     /// Interaction logic for ConfigurationWindow.xaml
     /// </summary>
-    public partial class ConfigurationWindow : UserControl
+    public partial class ConfigurationWindow : UserControl, INotifyPropertyChanged
     {
+        private EddpConfiguration configuration;
+
+        public List<KeyValuePair<string, string>> StatesPlusNone { get; set; }
+
+        private ObservableCollection<Watch> watches;
+        public ObservableCollection<Watch> Watches
+        {
+            get { return watches; }
+            set { watches = value; OnPropertyChanged("Watch"); }
+        }
+
+        public event PropertyChangedEventHandler PropertyChanged;
+        protected void OnPropertyChanged(string name)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+        }
+
         public ConfigurationWindow()
         {
             InitializeComponent();
+            DataContext = this;
 
-            StarMapConfiguration starMapConfiguration = StarMapConfiguration.FromFile();
-            edsmApiKeyTextBox.Text = starMapConfiguration.apiKey;
-            edsmCommanderNameTextBox.Text = starMapConfiguration.commanderName;
-            edsmFetchLogsButton.Content = String.IsNullOrEmpty(edsmApiKeyTextBox.Text) ? "Please enter EDSM API key  to obtain log" : "Obtain log";
+            // Make a list of states plus a (anything) state that maps to NULL
+            StatesPlusNone = new List<KeyValuePair<string, string>>();
+            StatesPlusNone.Add(new KeyValuePair<string, string>("(Tout)", null));
+            StatesPlusNone.AddRange(State.STATES.Select(x => new KeyValuePair<string, string>(x.name, x.name)));
+
+            configurationFromFile();
         }
 
-        private void edsmCommanderNameChanged(object sender, TextChangedEventArgs e)
+        private void configurationFromFile()
         {
-            edsmFetchLogsButton.IsEnabled = true;
-            edsmFetchLogsButton.Content = "Obtain log";
-            updateEdsmConfiguration();
+            configuration = EddpConfiguration.FromFile();
+            ObservableCollection<Watch> watches = new ObservableCollection<Watch>();
+            foreach (Watch watch in configuration.watches)
+            {
+                watches.Add(watch);
+            }
+            Watches = watches;
         }
 
-        private void edsmApiKeyChanged(object sender, TextChangedEventArgs e)
+        private void eddpWatchesUpdated(object sender, RoutedEventArgs e)
         {
-            edsmFetchLogsButton.IsEnabled = true;
-            edsmFetchLogsButton.Content = String.IsNullOrEmpty(edsmApiKeyTextBox.Text) ? "Please enter EDSM API key  to obtain log" : "Obtain log";
-            updateEdsmConfiguration();
+            updateWatchesConfiguration();
         }
 
-        private void updateEdsmConfiguration()
+        private void eddpWatchesUpdated(object sender, DataTransferEventArgs e)
         {
-            StarMapConfiguration edsmConfiguration = new StarMapConfiguration();
-            if (!string.IsNullOrWhiteSpace(edsmApiKeyTextBox.Text))
-            {
-                edsmConfiguration.apiKey = edsmApiKeyTextBox.Text.Trim();
-            }
-            if (!string.IsNullOrWhiteSpace(edsmCommanderNameTextBox.Text))
-            {
-                edsmConfiguration.commanderName = edsmCommanderNameTextBox.Text.Trim();
-            }
-            edsmConfiguration.ToFile();
-            EDDI.Instance.Reload("EDSM responder");
+            updateWatchesConfiguration();
         }
 
-        /// <summary>
-        /// Obtain the EDSM log and sync it with the local datastore
-        /// </summary>
-        private async void edsmObtainLogClicked(object sender, RoutedEventArgs e)
+        private void eddpStateChanged(object sender, SelectionChangedEventArgs e)
         {
-            StarMapConfiguration starMapConfiguration = StarMapConfiguration.FromFile();
-
-            if (string.IsNullOrEmpty(starMapConfiguration.apiKey))
-            {
-                edsmFetchLogsButton.IsEnabled = false;
-                edsmFetchLogsButton.Content = "Please enter EDSM API key  to obtain log";
-                return;
-            }
-
-            string commanderName;
-            if (string.IsNullOrEmpty(starMapConfiguration.commanderName))
-            {
-                // Fetch the commander name from the companion app
-                Commander cmdr = EDDI.Instance.Cmdr;
-                if (cmdr != null && cmdr.name != null)
-                {
-                    commanderName = cmdr.name;
-                }
-                else
-                {
-                    edsmFetchLogsButton.IsEnabled = false;
-                    edsmFetchLogsButton.Content = "Companion app not configured and no name supplied; cannot obtain logs";
-                    return;
-                }
-            }
-            else
-            {
-                commanderName = starMapConfiguration.commanderName;
-            }
-
-            edsmFetchLogsButton.IsEnabled = false;
-            edsmFetchLogsButton.Content = "Obtaining log...";
-
-            var progress = new Progress<string>(s => edsmFetchLogsButton.Content = s);
-            await Task.Factory.StartNew(() => obtainEdsmLogs(starMapConfiguration, commanderName, progress),
-                                            TaskCreationOptions.LongRunning);
+            updateWatchesConfiguration();
         }
 
-        public static void obtainEdsmLogs(StarMapConfiguration starMapConfiguration, string commanderName, IProgress<string> progress)
+        private void eddpAddWatch(object sender, RoutedEventArgs e)
         {
-            StarMapService starMapService = new StarMapService(starMapConfiguration.apiKey, commanderName);
-            try
+            Watch watch = new Watch();
+            watch.Name = "New watch";
+
+            configuration.watches.Add(watch);
+            updateWatchesConfiguration();
+            Watches.Add(watch);
+            watchData.Items.Refresh();
+        }
+
+        private void eddpDeleteWatch(object sender, RoutedEventArgs e)
+        {
+            Watch watch = (Watch)((Button)e.Source).DataContext;
+            configuration.watches.Remove(watch);
+            updateWatchesConfiguration();
+            Watches.Remove(watch);
+            watchData.Items.Refresh();
+        }
+
+        private void updateWatchesConfiguration()
+        {
+            if (configuration != null)
             {
-                Dictionary<string, StarMapLogInfo> systems = starMapService.getStarMapLog();
-                Dictionary<string, string> comments = starMapService.getStarMapComments();
-                int total = systems.Count;
-                int i = 0;
-                foreach (string system in systems.Keys)
-                {
-                    progress.Report("Obtaining log " + i++ + "/" + total);
-                    StarSystem CurrentStarSystem = StarSystemSqLiteRepository.Instance.GetOrCreateStarSystem(system, false);
-                    CurrentStarSystem.visits = systems[system].visits;
-                    CurrentStarSystem.lastvisit = systems[system].lastVisit;
-                    if (comments.ContainsKey(system))
-                    {
-                        CurrentStarSystem.comment = comments[system];
-                    }
-                    StarSystemSqLiteRepository.Instance.SaveStarSystem(CurrentStarSystem);
-                }
-                progress.Report("Obtained log");
+                configuration.ToFile();
             }
-            catch (EDSMException edsme)
-            {
-                progress.Report("EDSM error received: " + edsme.Message);
-            }
+            EDDI.Instance.Reload("EDDP monitor");
         }
     }
 }
