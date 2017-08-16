@@ -35,7 +35,7 @@ namespace EddiShipMonitor
 
         public string MonitorDescription()
         {
-            return "Track information on your ships.";
+            return "Pour le suivi de votre flotte de vaisseaux.";
         }
 
         public bool IsRequired()
