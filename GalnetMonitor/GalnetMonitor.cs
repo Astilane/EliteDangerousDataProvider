@@ -68,7 +68,7 @@ namespace GalnetMonitor
         /// </summary>
         public string MonitorDescription()
         {
-            return @"Monitor Galnet for new news items and generate a ""Galnet news published"" event when new items are posted";
+            return @"Surveille le réseau Galnet pour de nouvelles informations et génère un événement "" Galnet news published "" lorsque de nouveaux articles sont affichés";
         }
 
         public bool IsRequired()
